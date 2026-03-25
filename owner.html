@@ -1,0 +1,209 @@
+<!-- ================= FULL ECOMMERCE WEBSITE ================= --><!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Full WhatsApp Shop</title><!-- Firebase v8 --><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script><style>
+body { font-family: Arial; margin:0; background:#f1f3f6; }
+header { background:#2874f0; color:white; padding:15px; text-align:center; }
+.container { padding:15px; }
+.product { background:white; padding:10px; margin:10px; border-radius:10px; display:inline-block; width:45%; }
+button { background:#fb641b; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; }
+.out { color:red; }
+.nav { background:#fff; padding:10px; display:flex; justify-content:space-around; }
+</style></head>
+<body><header>
+<h2>My Shopping Site</h2>
+</header><!-- LOGIN PAGE --><div id="loginPage" class="container">
+<h3>Login / Signup</h3>
+<input type="text" id="phone" placeholder="+91XXXXXXXXXX"><br><br>
+<div id="recaptcha"></div>
+<button onclick="sendOTP()">Send OTP</button><div id="otpBox" style="display:none;">
+<input type="text" id="otp" placeholder="Enter OTP"><br><br>
+<button onclick="verifyOTP()">Verify</button>
+</div>
+</div><!-- HOME PAGE --><div id="homePage" style="display:none;">
+<div class="nav">
+<button onclick="showPage('home')">Home</button>
+<button onclick="showPage('cart')">Cart</button>
+<button onclick="logout()">Logout</button>
+</div><div id="home" class="container">
+<h3>Products</h3>
+<div id="productList"></div>
+</div><div id="cart" class="container" style="display:none;">
+<h3>My Cart</h3>
+<div id="cartList"></div>
+<button onclick="checkout()">Order on WhatsApp</button>
+</div>
+</div><script>
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyAtkPjt4_umlOiQ5CcCSumD-raCgWDjUQI",
+  authDomain: "the-ambar.firebaseapp.com",
+  projectId: "the-ambar",
+  appId: "1:517488368269:web:138cd42713e0e7958f60c4"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha');
+
+let confirmationResult;
+let cart = [];
+let whatsappNumber = "919999999999";
+
+let products = JSON.parse(localStorage.getItem('products')) || [];
+
+function sendOTP(){
+  let phone = document.getElementById('phone').value;
+  auth.signInWithPhoneNumber(phone, window.recaptchaVerifier)
+  .then(res => {
+    confirmationResult = res;
+    alert("OTP Sent");
+    document.getElementById('otpBox').style.display = 'block';
+  });
+}
+
+function verifyOTP(){
+  let code = document.getElementById('otp').value;
+  confirmationResult.confirm(code)
+  .then(()=>{
+    document.getElementById('loginPage').style.display='none';
+    document.getElementById('homePage').style.display='block';
+    renderProducts();
+  })
+  .catch(()=>alert('Wrong OTP'));
+}
+
+function renderProducts(){
+  let list = document.getElementById('productList');
+  list.innerHTML = "";
+
+  products.forEach((p,i)=>{
+    list.innerHTML += `
+      <div class="product">
+        <img src="${p.image}" width="100%">
+        <h4>${p.name}</h4>
+        <p>₹${p.price}</p>
+        ${p.outOfStock ? '<p class="out">Out of Stock</p>' : `<button onclick="addToCart(${i})">Add to Cart</button>`}
+      </div>`;
+  });
+}
+
+function addToCart(i){
+  cart.push(products[i]);
+  alert('Added to cart');
+}
+
+function showPage(page){
+  document.getElementById('home').style.display = page==='home'?'block':'none';
+  document.getElementById('cart').style.display = page==='cart'?'block':'none';
+  if(page==='cart') renderCart();
+}
+
+function renderCart(){
+  let list = document.getElementById('cartList');
+  list.innerHTML = "";
+  cart.forEach(p=>{
+    list.innerHTML += `<div>${p.name} - ₹${p.price}</div>`;
+  });
+}
+
+function checkout(){
+  let msg = "Order:%0A";
+  cart.forEach(p=>{
+    msg += `${p.name} - ₹${p.price}%0A`;
+  });
+  window.open(`https://wa.me/${whatsappNumber}?text=${msg}`);
+}
+
+function logout(){
+  location.reload();
+}
+</script></body>
+</html><!-- ================= OWNER PANEL (owner.html) ================= --><!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Owner Panel</title><!-- Firebase v8 --><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script><style>
+body { font-family: Arial; background:#111; color:white; margin:0; }
+.container { padding:20px; text-align:center; }
+input { padding:10px; margin:5px 0; width:100%; }
+button { padding:10px; background:#25D366; border:none; color:white; cursor:pointer; margin-top:5px; }
+.card { background:#222; padding:10px; margin:10px 0; border-radius:10px; }
+</style></head>
+<body><div class="container" id="loginPage">
+<h2>Owner Login</h2>
+<p>OTP will be sent automatically to your number</p>
+<div id="recaptchaOwner"></div><div id="otpBox" style="display:none;">
+<input type="text" id="ownerOtp" placeholder="Enter OTP">
+<button onclick="verifyOwnerOTP()">Verify OTP</button>
+</div>
+</div><div class="container" id="adminPanel" style="display:none;">
+<h2>Add Product</h2>
+<input type="text" id="pname" placeholder="Product Name">
+<input type="number" id="pprice" placeholder="Price">
+<input type="text" id="pimage" placeholder="Image URL">
+<button onclick="addProduct()">Add Product</button><h3>Products</h3>
+<div id="list"></div>
+</div><script>
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  appId: "YOUR_APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+let allowedNumber = "+917984760070";
+let confirmationResult;
+let products = JSON.parse(localStorage.getItem('products')) || [];
+
+window.onload = function(){
+  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptchaOwner');
+
+  // 🔥 AUTO SEND OTP
+  auth.signInWithPhoneNumber(allowedNumber, window.recaptchaVerifier)
+  .then(res => {
+    confirmationResult = res;
+    alert("OTP sent to owner number");
+    document.getElementById('otpBox').style.display = 'block';
+  })
+  .catch(err => alert(err.message));
+}
+
+function verifyOwnerOTP(){
+  let code = document.getElementById('ownerOtp').value;
+
+  confirmationResult.confirm(code)
+  .then(()=>{
+    document.getElementById('loginPage').style.display='none';
+    document.getElementById('adminPanel').style.display='block';
+    showProducts();
+  })
+  .catch(()=>alert('Wrong OTP'));
+}
+
+function addProduct(){
+  let name = document.getElementById('pname').value;
+  let price = document.getElementById('pprice').value;
+  let image = document.getElementById('pimage').value;
+
+  if(!name || !price || !image){ alert("Fill all fields"); return; }
+
+  products.push({name, price, image, outOfStock:false});
+  localStorage.setItem('products', JSON.stringify(products));
+  showProducts();
+}
+
+function showProducts(){
+  let list = document.getElementById('list');
+  list.innerHTML = "";
+
+  products.forEach((p)=>{
+    list.innerHTML += `<div class="card">${p.name} - ₹${p.price}</div>`;
+  });
+}
+</script></body>
+</html>

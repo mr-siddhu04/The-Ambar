@@ -1,0 +1,98 @@
+<!-- ================= USER WEBSITE (index.html) ================= --><!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp Shop</title><!-- Firebase --><script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script><style>
+body { font-family: Arial; margin:0; background:#f5f5f5; }
+header { background:#25D366; color:white; padding:15px; text-align:center; }
+.container { padding:20px; }
+.product { background:white; padding:15px; margin:10px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+button { background:#25D366; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; }
+.out { color:red; font-weight:bold; }
+</style></head>
+<body><header>
+<h2>WhatsApp Shop</h2>
+</header><div class="container" id="loginBox">
+<h3>Login with Phone (Firebase)</h3>
+<input type="text" id="phone" placeholder="+91XXXXXXXXXX">
+<div id="recaptcha"></div>
+<button onclick="sendOTP()">Send OTP</button><div id="otpSection" style="display:none;">
+<input type="text" id="otp" placeholder="Enter OTP">
+<button onclick="verifyOTP()">Verify OTP</button>
+</div>
+</div><div class="container" id="shop" style="display:none;">
+<h3>Products</h3>
+<div id="productList"></div>
+</div><script>
+// 🔥 YOUR FIREBASE CONFIG (PASTE FROM FIREBASE CONSOLE)
+const firebaseConfig = {
+  apiKey: "AIzaSyAtkPjt4_umlOiQ5CcCSumD-raCgWDjUQI",
+  authDomain: "the-ambar.firebaseapp.com",
+  projectId: "the-ambar",
+  storageBucket: "the-ambar.firebasestorage.app",
+  messagingSenderId: "517488368269",
+  appId: "1:517488368269:web:138cd42713e0e7958f60c4",
+  measurementId: "G-BCX6J50GC6"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha', {
+  size: 'normal'
+});
+
+let confirmationResult;
+let whatsappNumber = "919999999999";
+let products = JSON.parse(localStorage.getItem('products')) || [];
+
+function sendOTP(){
+  let phone = document.getElementById('phone').value;
+
+  auth.signInWithPhoneNumber(phone, window.recaptchaVerifier)
+  .then((result) => {
+    confirmationResult = result;
+    alert("OTP Sent");
+    document.getElementById('otpSection').style.display = "block";
+  })
+  .catch((error) => {
+    alert(error.message);
+  });
+}
+
+function verifyOTP(){
+  let code = document.getElementById('otp').value;
+
+  confirmationResult.confirm(code)
+  .then((result) => {
+    document.getElementById('loginBox').style.display = "none";
+    document.getElementById('shop').style.display = "block";
+    renderProducts();
+  })
+  .catch(() => alert("Wrong OTP"));
+}
+
+function renderProducts(){
+  let list = document.getElementById('productList');
+  list.innerHTML = "";
+
+  products.forEach((p, index) => {
+    list.innerHTML += `
+      <div class="product">
+        <img src="${p.image}" width="100%">
+        <h4>${p.name}</h4>
+        <p>₹${p.price}</p>
+        ${p.outOfStock ? '<p class="out">Out of Stock</p>' : `<button onclick="orderProduct(${index})">Order on WhatsApp</button>`}
+      </div>
+    `;
+  });
+}
+
+function orderProduct(i){
+  let p = products[i];
+  let msg = `Hello, I want to buy: ${p.name} for ₹${p.price}`;
+  let url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+</script></body>
+</html><!-- ================= OWNER PANEL (owner.html) ================= --><!-- (No change here, same as before) -->
