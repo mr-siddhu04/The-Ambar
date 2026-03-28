@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Login - The Ambar</title>
+  <title>The Ambar Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Firebase v8 -->
+  <!-- ✅ Firebase v8 (IMPORTANT) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
@@ -12,14 +12,14 @@
     body {
       margin: 0;
       font-family: Arial;
-      background: linear-gradient(to right, #8360c3, #2ebf91);
+      background: linear-gradient(to right, #667eea, #764ba2);
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
     }
 
-    .box {
+    .login-box {
       background: white;
       padding: 30px;
       border-radius: 12px;
@@ -51,21 +51,20 @@
 
 <body>
 
-<div class="box">
+<div class="login-box">
   <h2>Welcome to The Ambar</h2>
   <button onclick="googleLogin()">Continue with Google</button>
 </div>
 
 <script>
-  // 🔥 PASTE YOUR FIREBASE CONFIG HERE
+  // ✅ YOUR FIREBASE CONFIG (ALREADY CORRECT)
   const firebaseConfig = {
-  apiKey: "AIzaSyAtkPjt4_umlOiQ5CcCSumD-raCgWDjUQI",
-  authDomain: "the-ambar.firebaseapp.com",
-  projectId: "the-ambar",
-  storageBucket: "the-ambar.firebasestorage.app",
-  messagingSenderId: "517488368269",
-  appId: "1:517488368269:web:138cd42713e0e7958f60c4",
-  measurementId: "G-BCX6J50GC6"
+    apiKey: "AIzaSyAtkPjt4_umlOiQ5CcCSumD-raCgWDjUQI",
+    authDomain: "the-ambar.firebaseapp.com",
+    projectId: "the-ambar",
+    storageBucket: "the-ambar.firebasestorage.app",
+    messagingSenderId: "517488368269",
+    appId: "1:517488368269:web:138cd42713e0e7958f60c4"
   };
 
   firebase.initializeApp(firebaseConfig);
@@ -77,17 +76,26 @@
     auth.signInWithRedirect(provider);
   }
 
-  // ✅ HANDLE REDIRECT RESULT
+  // ✅ HANDLE LOGIN AFTER REDIRECT
   auth.getRedirectResult()
     .then((result) => {
       if (result.user) {
-        alert("Login Successful ✅");
-        window.location.href = "home.html";
+        console.log("Redirect login success");
       }
     })
     .catch((error) => {
-      alert(error.message);
+      console.log(error.message);
     });
+
+  // ✅ DETECT USER (MAIN FIX)
+  auth.onAuthStateChanged(function(user) {
+    if (user) {
+      console.log("User detected:", user.displayName);
+      window.location.href = "home.html"; // 🔥 redirect after login
+    } else {
+      console.log("No user logged in");
+    }
+  });
 </script>
 
 </body>
