@@ -4,9 +4,9 @@
   <title>OTP Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+  <!-- ✅ Firebase v8 (IMPORTANT) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
   <style>
     body {
@@ -17,6 +17,7 @@
       align-items: center;
       height: 100vh;
     }
+
     .box {
       background: white;
       padding: 25px;
@@ -25,6 +26,7 @@
       text-align: center;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
+
     input {
       width: 100%;
       padding: 10px;
@@ -32,6 +34,7 @@
       border-radius: 5px;
       border: 1px solid #ccc;
     }
+
     button {
       width: 100%;
       padding: 10px;
@@ -41,9 +44,6 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-    }
-    button:hover {
-      background: #0b5ed7;
     }
   </style>
 </head>
@@ -56,6 +56,7 @@
   <input type="text" id="phone" placeholder="+91XXXXXXXXXX">
   <button onclick="sendOTP()">Send OTP</button>
 
+  <!-- ✅ reCAPTCHA -->
   <div id="recaptcha-container"></div>
 
   <input type="text" id="otp" placeholder="Enter OTP">
@@ -63,23 +64,33 @@
 </div>
 
 <script>
-  // 🔥 Replace with your Firebase config
+  // 🔥 PASTE YOUR FIREBASE CONFIG HERE
   const firebaseConfig = {
-    apiKey: "AIzaSyAtkPjt4_umlOiQ5CcCSumD-raCgWDjUQI",
-    authDomain: "the-ambar.firebaseapp.com",
-    projectId: "the-ambar",
-    appId: "1:517488368269:web:138cd42713e0e7958f60c4"
+  apiKey: "AIzaSyAtkPjt4_umlOiQ5CcCSumD-raCgWDjUQI",
+  authDomain: "the-ambar.firebaseapp.com",
+  projectId: "the-ambar",
+  storageBucket: "the-ambar.firebasestorage.app",
+  messagingSenderId: "517488368269",
+  appId: "1:517488368269:web:138cd42713e0e7958f60c4",
+  measurementId: "G-BCX6J50GC6"
   };
 
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
-  // reCAPTCHA
-  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
-    'recaptcha-container',
-    { size: 'normal' }
-  );
+  // ✅ Setup reCAPTCHA
+  window.onload = function () {
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+      'recaptcha-container',
+      {
+        size: 'normal'
+      }
+    );
 
+    recaptchaVerifier.render();
+  };
+
+  // 📱 Send OTP
   function sendOTP() {
     const phoneNumber = document.getElementById("phone").value;
 
@@ -93,19 +104,23 @@
       });
   }
 
+  // 🔐 Verify OTP
   function verifyOTP() {
     const code = document.getElementById("otp").value;
 
     confirmationResult.confirm(code)
       .then(function (result) {
         alert("Login Successful!");
-        window.location.href = "home.html"; // redirect
+        window.location.href = "home.html";
       })
       .catch(function (error) {
         alert("Invalid OTP");
       });
   }
 </script>
+
+</body>
+</html></script>
 
 </body>
 </html>
