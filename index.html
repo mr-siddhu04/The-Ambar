@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>OTP Login</title>
+  <title>Google Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ✅ Firebase v8 (IMPORTANT) -->
+  <!-- Firebase v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
@@ -20,30 +20,22 @@
 
     .box {
       background: white;
-      padding: 25px;
+      padding: 30px;
       border-radius: 10px;
-      width: 300px;
       text-align: center;
+      width: 300px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-
     button {
+      padding: 12px;
       width: 100%;
-      padding: 10px;
-      margin-top: 15px;
-      background: #2874f0;
+      background: #db4437;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      font-size: 16px;
     }
   </style>
 </head>
@@ -52,19 +44,11 @@
 
 <div class="box">
   <h2>Login</h2>
-
-  <input type="text" id="phone" placeholder="+91XXXXXXXXXX">
-  <button onclick="sendOTP()">Send OTP</button>
-
-  <!-- ✅ reCAPTCHA -->
-  <div id="recaptcha-container"></div>
-
-  <input type="text" id="otp" placeholder="Enter OTP">
-  <button onclick="verifyOTP()">Verify OTP</button>
+  <button onclick="googleLogin()">Continue with Google</button>
 </div>
 
 <script>
-  // 🔥 PASTE YOUR FIREBASE CONFIG HERE
+  // 🔥 PUT YOUR FIREBASE CONFIG HERE
   const firebaseConfig = {
   apiKey: "AIzaSyAtkPjt4_umlOiQ5CcCSumD-raCgWDjUQI",
   authDomain: "the-ambar.firebaseapp.com",
@@ -72,55 +56,25 @@
   storageBucket: "the-ambar.firebasestorage.app",
   messagingSenderId: "517488368269",
   appId: "1:517488368269:web:138cd42713e0e7958f60c4",
-  measurementId: "G-BCX6J50GC6"
+  measurementId: "G-BCX6J50GC6""
   };
 
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
-  // ✅ Setup reCAPTCHA
-  window.onload = function () {
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
-      'recaptcha-container',
-      {
-        size: 'normal'
-      }
-    );
+  function googleLogin() {
+    const provider = new firebase.auth.GoogleAuthProvider();
 
-    recaptchaVerifier.render();
-  };
-
-  // 📱 Send OTP
-  function sendOTP() {
-    const phoneNumber = document.getElementById("phone").value;
-
-    auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
-      .then(function (confirmationResult) {
-        window.confirmationResult = confirmationResult;
-        alert("OTP Sent!");
-      })
-      .catch(function (error) {
-        alert(error.message);
-      });
-  }
-
-  // 🔐 Verify OTP
-  function verifyOTP() {
-    const code = document.getElementById("otp").value;
-
-    confirmationResult.confirm(code)
-      .then(function (result) {
+    auth.signInWithPopup(provider)
+      .then((result) => {
         alert("Login Successful!");
         window.location.href = "home.html";
       })
-      .catch(function (error) {
-        alert("Invalid OTP");
+      .catch((error) => {
+        alert(error.message);
       });
   }
 </script>
-
-</body>
-</html></script>
 
 </body>
 </html>
