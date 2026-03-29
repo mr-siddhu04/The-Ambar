@@ -1,101 +1,100 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>The Ambar Login</title>
+  <title>The Ambar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ✅ Firebase v8 (IMPORTANT) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: linear-gradient(to right, #667eea, #764ba2);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .login-box {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      text-align: center;
-      width: 320px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-
-    h2 {
-      margin-bottom: 20px;
-    }
-
-    button {
-      padding: 12px;
-      width: 100%;
-      background: #db4437;
+    body { margin: 0; font-family: Arial; background: #f1f3f6; }
+    header {
+      background: #2874f0;
       color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
     }
-
-    button:hover {
-      background: #c23321;
+    .products {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      padding: 10px;
+    }
+    .card {
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    button {
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 5px;
     }
   </style>
 </head>
 
 <body>
 
-<div class="login-box">
-  <h2>Welcome to The Ambar</h2>
-  <button onclick="googleLogin()">Continue with Google</button>
+<header>
+  <h3>The Ambar</h3>
+  <div>
+    <button id="adminBtn" style="display:none;" onclick="goAdmin()">Admin</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<div class="products">
+  <div class="card">
+    <h4>Shoes</h4>
+    <p>₹999</p>
+    <button onclick="addToCart()">Add to Cart</button>
+  </div>
 </div>
 
 <script>
-  // ✅ YOUR FIREBASE CONFIG (ALREADY CORRECT)
-  const firebaseConfig = {
-    apiKey: "AIzaSyAtkPjt4_umlOiQ5CcCSumD-raCgWDjUQI",
-    authDomain: "the-ambar.firebaseapp.com",
-    projectId: "the-ambar",
-    storageBucket: "the-ambar.firebasestorage.app",
-    messagingSenderId: "517488368269",
-    appId: "1:517488368269:web:138cd42713e0e7958f60c4"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyAtkPjt4_umlOiQ5CcCSumD-raCgWDjUQI",
+  authDomain: "the-ambar.firebaseapp.com",
+  projectId: "the-ambar",
+  storageBucket: "the-ambar.firebasestorage.app",
+  messagingSenderId: "517488368269",
+  appId: "1:517488368269:web:138cd42713e0e7958f60c4",
+  measurementId: "G-BCX6J50GC6"
+};
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 
-  // ✅ GOOGLE LOGIN (MOBILE SAFE)
-  function googleLogin() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithRedirect(provider);
-  }
+const ADMIN_EMAIL = "gamerbeatsff@gmail.com";
 
-  // ✅ HANDLE LOGIN AFTER REDIRECT
-  auth.getRedirectResult()
-    .then((result) => {
-      if (result.user) {
-        console.log("Redirect login success");
-      }
-    })
-    .catch((error) => {
-      console.log(error.message);
-    });
-
-  // ✅ DETECT USER (MAIN FIX)
-  auth.onAuthStateChanged(function(user) {
-    if (user) {
-      console.log("User detected:", user.displayName);
-      window.location.href = "home.html"; // 🔥 redirect after login
-    } else {
-      console.log("No user logged in");
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "login.html";
+  } else {
+    if (user.email === ADMIN_EMAIL) {
+      document.getElementById("adminBtn").style.display = "inline-block";
     }
+  }
+});
+
+function logout() {
+  auth.signOut().then(() => {
+    window.location.href = "login.html";
   });
+}
+
+function goAdmin() {
+  window.location.href = "admin.html";
+}
+
+function addToCart() {
+  alert("Added to cart 🛒");
+}
 </script>
 
 </body>
