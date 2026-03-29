@@ -1,111 +1,67 @@
-<!-- ================= FULL ECOMMERCE WEBSITE ================= --><!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Full WhatsApp Shop</title><!-- Firebase v8 --><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script><style>
-body { font-family: Arial; margin:0; background:#f1f3f6; }
-header { background:#2874f0; color:white; padding:15px; text-align:center; }
-.container { padding:15px; }
-.product { background:white; padding:10px; margin:10px; border-radius:10px; display:inline-block; width:45%; }
-button { background:#fb641b; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; }
-.out { color:red; }
-.nav { background:#fff; padding:10px; display:flex; justify-content:space-around; }
-</style></head>
-<body><header>
-<h2>My Shopping Site</h2>
-</header><!-- LOGIN PAGE --><div id="loginPage" class="container">
-<h3>Login / Signup</h3>
-<input type="text" id="phone" placeholder="+91XXXXXXXXXX"><br><br>
-<div id="recaptcha"></div>
-<button onclick="sendOTP()">Send OTP</button><div id="otpBox" style="display:none;">
-<input type="text" id="otp" placeholder="Enter OTP"><br><br>
-<button onclick="verifyOTP()">Verify</button>
-</div>
-</div><!-- HOME PAGE --><div id="homePage" style="display:none;">
-<div class="nav">
-<button onclick="showPage('home')">Home</button>
-<button onclick="showPage('cart')">Cart</button>
+  <title>Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Admin Panel 👑</h2>
+
+<input type="text" placeholder="Product Name">
+<input type="number" placeholder="Price">
+<button>Add Product</button>
+
 <button onclick="logout()">Logout</button>
-</div><div id="home" class="container">
-<h3>Products</h3>
-<div id="productList"></div>
-</div><div id="cart" class="container" style="display:none;">
-<h3>My Cart</h3>
-<div id="cartList"></div>
-<button onclick="checkout()">Order on WhatsApp</button>
-</div>
-</div><script>
-// Firebase Config
+
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyAtkPjt4_umlOiQ5CcCSumD-raCgWDjUQI",
   authDomain: "the-ambar.firebaseapp.com",
   projectId: "the-ambar",
-  appId: "1:517488368269:web:138cd42713e0e7958f60c4"
+  storageBucket: "the-ambar.firebasestorage.app",
+  messagingSenderId: "517488368269",
+  appId: "1:517488368269:web:138cd42713e0e7958f60c4",
+  measurementId: "G-BCX6J50GC6"
 };
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha');
+const ADMIN_EMAIL = "gamerbeatsff@gmail.com";
 
-let confirmationResult;
-let cart = [];
-let whatsappNumber = "919999999999";
+// 🔐 Security
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "login.html";
+  } else if (user.email !== ADMIN_EMAIL) {
+    alert("Access Denied ❌");
+    window.location.href = "index.html";
+  }
+});
 
-let products = JSON.parse(localStorage.getItem('products')) || [];
-
-function sendOTP(){
-  let phone = document.getElementById('phone').value;
-  auth.signInWithPhoneNumber(phone, window.recaptchaVerifier)
-  .then(res => {
-    confirmationResult = res;
-    alert("OTP Sent");
-    document.getElementById('otpBox').style.display = 'block';
+function logout() {
+  auth.signOut().then(() => {
+    window.location.href = "login.html";
   });
 }
+</script>
 
-function verifyOTP(){
-  let code = document.getElementById('otp').value;
-  confirmationResult.confirm(code)
-  .then(()=>{
-    document.getElementById('loginPage').style.display='none';
-    document.getElementById('homePage').style.display='block';
-    renderProducts();
-  })
-  .catch(()=>alert('Wrong OTP'));
-}
-
-function renderProducts(){
-  let list = document.getElementById('productList');
-  list.innerHTML = "";
-
-  products.forEach((p,i)=>{
-    list.innerHTML += `
-      <div class="product">
-        <img src="${p.image}" width="100%">
-        <h4>${p.name}</h4>
-        <p>₹${p.price}</p>
-        ${p.outOfStock ? '<p class="out">Out of Stock</p>' : `<button onclick="addToCart(${i})">Add to Cart</button>`}
-      </div>`;
-  });
-}
-
-function addToCart(i){
-  cart.push(products[i]);
-  alert('Added to cart');
-}
-
-function showPage(page){
-  document.getElementById('home').style.display = page==='home'?'block':'none';
-  document.getElementById('cart').style.display = page==='cart'?'block':'none';
-  if(page==='cart') renderCart();
-}
-
-function renderCart(){
-  let list = document.getElementById('cartList');
-  list.innerHTML = "";
-  cart.forEach(p=>{
-    list.innerHTML += `<div>${p.name} - ₹${p.price}</div>`;
-  });
+</body>
+</html>  });
 }
 
 function checkout(){
