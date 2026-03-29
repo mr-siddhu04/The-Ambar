@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head><title>Cart</title></head>
+<body>
+
+<h2>Cart</h2>
+<div id="items"></div>
+<h3 id="payment"></h3>
+
+<script>
+let cart=JSON.parse(localStorage.getItem("cart")||"[]");
+let html="";
+cart.forEach(i=>{
+  html+=`<p>${i.name} - ₹${i.price}</p>`;
+});
+document.getElementById("items").innerHTML=html;
+</script>
+
+</body>
+</html>

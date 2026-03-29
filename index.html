@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Shop</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+
+<h2>Products</h2>
+<button onclick="goLogin()">Login</button>
+<button onclick="goCart()">Cart</button>
+
+<div id="products"></div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAtkPjt4_umlOiQ5CcCSumD-raCgWDjUQI",
+  authDomain: "the-ambar.firebaseapp.com",
+  projectId: "the-ambar"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+function goLogin(){ window.location.href="login.html"; }
+function goCart(){ window.location.href="cart.html"; }
+
+db.collection("products").onSnapshot(snap=>{
+  let html="";
+  snap.forEach(doc=>{
+    let p=doc.data();
+    html+=`<p>${p.name} - ₹${p.price}
+    <button onclick="addCart('${p.name}',${p.price})">Add</button></p>`;
+  });
+  document.getElementById("products").innerHTML=html;
+});
+
+function addCart(name,price){
+  let cart=JSON.parse(localStorage.getItem("cart")||"[]");
+  cart.push({name,price});
+  localStorage.setItem("cart",JSON.stringify(cart));
+  alert("Added");
+}
+</script>
+</body>
+</html>
